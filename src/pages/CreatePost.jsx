@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const createPost = async (postData) => {
@@ -15,7 +17,7 @@ const createPost = async (postData) => {
 };
 
 const CreatePost = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, control } = useForm();
   const navigate = useNavigate();
 
   const mutation = useMutation({
@@ -41,21 +43,50 @@ const CreatePost = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
               <Input
-                placeholder="Post Title"
+                id="title"
+                placeholder="Enter your post title"
                 {...register("title", { required: "Title is required" })}
               />
-              {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
+              {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
             </div>
-            <div>
+            <div className="space-y-2">
+              <Label htmlFor="subreddit">Subreddit</Label>
+              <Select {...register("subreddit", { required: "Subreddit is required" })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a subreddit" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="r/funny">r/funny</SelectItem>
+                  <SelectItem value="r/AskReddit">r/AskReddit</SelectItem>
+                  <SelectItem value="r/gaming">r/gaming</SelectItem>
+                  <SelectItem value="r/aww">r/aww</SelectItem>
+                  <SelectItem value="r/pics">r/pics</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.subreddit && <p className="text-red-500 text-sm">{errors.subreddit.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="content">Content</Label>
               <Textarea
-                placeholder="Post Content"
+                id="content"
+                placeholder="Write your post content here"
                 {...register("content", { required: "Content is required" })}
+                className="min-h-[200px]"
               />
-              {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content.message}</p>}
+              {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
             </div>
-            <Button type="submit" disabled={mutation.isPending}>
+            <div className="space-y-2">
+              <Label htmlFor="image">Image URL (optional)</Label>
+              <Input
+                id="image"
+                placeholder="Enter image URL"
+                {...register("image")}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={mutation.isPending}>
               {mutation.isPending ? 'Creating...' : 'Create Post'}
             </Button>
           </form>

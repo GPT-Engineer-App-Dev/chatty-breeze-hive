@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowUpCircle, ArrowDownCircle, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Comments from '@/components/Comments';
 
 const fetchPosts = async () => {
   const response = await fetch('https://www.reddit.com/r/popular.json');
@@ -28,6 +29,7 @@ const Home = () => {
     queryKey: ['posts'],
     queryFn: fetchPosts,
   });
+  const [expandedPost, setExpandedPost] = useState(null);
 
   if (isLoading) return <div className="text-center mt-8">Loading posts...</div>;
   if (isError) return <div className="text-center mt-8 text-red-500">Error fetching posts</div>;
@@ -59,11 +61,18 @@ const Home = () => {
                   <ArrowDownCircle className="mr-2 h-4 w-4" />
                   Downvote
                 </Button>
-                <Link to={`/post/${post.id}`} className="flex items-center">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
+                >
                   <MessageCircle className="mr-2 h-4 w-4" />
                   {post.comments} comments
-                </Link>
+                </Button>
               </div>
+              {expandedPost === post.id && (
+                <Comments postId={post.id} />
+              )}
             </CardContent>
           </Card>
         ))}
