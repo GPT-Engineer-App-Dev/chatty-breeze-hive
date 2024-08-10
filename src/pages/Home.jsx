@@ -6,12 +6,21 @@ import { ArrowUpCircle, ArrowDownCircle, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const fetchPosts = async () => {
-  // Simulating API call
-  return [
-    { id: 1, title: "First post", content: "This is the content of the first post", votes: 10, comments: 5 },
-    { id: 2, title: "Second post", content: "This is the content of the second post", votes: 7, comments: 3 },
-    { id: 3, title: "Third post", content: "This is the content of the third post", votes: 15, comments: 8 },
-  ];
+  const response = await fetch('https://www.reddit.com/r/popular.json');
+  if (!response.ok) {
+    throw new Error('Failed to fetch posts');
+  }
+  const data = await response.json();
+  return data.data.children.map(post => ({
+    id: post.data.id,
+    title: post.data.title,
+    content: post.data.selftext,
+    votes: post.data.ups,
+    comments: post.data.num_comments,
+    author: post.data.author,
+    subreddit: post.data.subreddit_name_prefixed,
+    thumbnail: post.data.thumbnail,
+  }));
 };
 
 const Home = () => {
@@ -31,8 +40,14 @@ const Home = () => {
           <Card key={post.id} className="w-full">
             <CardHeader>
               <CardTitle>{post.title}</CardTitle>
+              <div className="text-sm text-gray-500">
+                Posted by {post.author} in {post.subreddit}
+              </div>
             </CardHeader>
             <CardContent>
+              {post.thumbnail && post.thumbnail !== 'self' && post.thumbnail !== 'default' && (
+                <img src={post.thumbnail} alt={post.title} className="mb-4 rounded-md mx-auto object-cover" />
+              )}
               <p className="mb-4">{post.content}</p>
               <div className="flex items-center space-x-4">
                 <Button variant="outline" size="sm">
